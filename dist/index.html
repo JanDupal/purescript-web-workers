@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>PureScript Web Workers</title>
+  </head>
+  <script type="text/javascript" >
+  (function () {
+    var log = console.log;
+    console.log = function () {
+      consoleElem = document.getElementById('console');
+      for (i in arguments) {
+        consoleElem.innerHTML += arguments[i] + " ";
+      }
+      consoleElem.innerHTML += "\n";
+
+      log.apply(this, Array.prototype.slice.call(arguments));
+    };
+  }());
+  </script>
+  <body>
+    <h4>Message log:</h4>
+    <pre id="console"></pre>
+    <p>Open browser's developer console to see <strong>logs from Worker thread</strong>.</p>
+
+    <script type="text/javascript" src="Main.js"></script>
+  </body>
+</html>

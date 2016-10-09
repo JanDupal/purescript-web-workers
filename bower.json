@@ -1,0 +1,21 @@
+{
+  "name": "purescript-web-workers",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-console": "^1.0.0",
+    "purescript-lists": "^1.0.1",
+    "purescript-assert": "^1.0.0",
+    "purescript-aff": "^1.1.0",
+    "purescript-debug": "^1.0.0",
+    "purescript-random": "^1.0.0",
+    "purescript-affjax": "^2.0.0"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^1.0.0"
+  }
+}
