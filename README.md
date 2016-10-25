@@ -4,7 +4,6 @@
 
 ```bash
 $ pulp browserify -O --to dist/Main.js
-$ pulp browserify -O -m Worker --to dist/Worker.js
 ```
 
 # Running

@@ -13,8 +13,9 @@ foreign import initWorker :: forall a b e f. (Eff f b -> b) -> (a -> Eff f b) ->
 listen :: forall a b e f. (a -> Eff f b) -> Eff e Unit
 listen = initWorker unsafePerformEff
 
-main :: forall e. Eff e Unit
-main = listen processMessage
+-- | Name "default" is required for webworkify to work
+default :: forall e. Eff e Unit
+default = listen processMessage
 
 processMessage :: String -> Eff (console :: CONSOLE) String
 processMessage input = do

@@ -1,0 +1,26 @@
+{
+  "name": "purescript-web-workers",
+  "version": "0.0.1",
+  "description": "Concurrency support for PureScript",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "webworkify": "^1.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JanDupal/purescript-web-workers.git"
+  },
+  "author": "Jan Dupal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JanDupal/purescript-web-workers/issues"
+  },
+  "homepage": "https://github.com/JanDupal/purescript-web-workers#readme"
+}

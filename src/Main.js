@@ -1,3 +1,5 @@
+var webworkify = require('webworkify');
+
 /**
 * Starts a WebWorker from file Worker.js and sends a message.
 *
@@ -7,7 +9,7 @@
 exports.startWorker = function(messageReceived) {
   return function(message) {
     return function() {
-      var worker = new Worker("Worker.js");
+      var worker = webworkify(require("Worker"));
       worker.onmessage = function(e) {
         console.log("[JavaScript - master] Message received:", e.data);
         messageReceived(e.data)();
