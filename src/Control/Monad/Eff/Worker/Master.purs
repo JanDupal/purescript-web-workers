@@ -9,7 +9,7 @@ import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
 import Prelude (Unit)
 
-foreign import startWorker :: forall e. Eff e Worker
+foreign import startWorker :: forall e. WorkerModule -> Eff e Worker
 
 foreign import sendMessage :: forall e. Worker -> Message -> Eff e Unit
 

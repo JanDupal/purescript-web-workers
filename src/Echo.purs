@@ -7,10 +7,12 @@ import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Exception (EXCEPTION)
-import Control.Monad.Eff.Worker (Message)
+import Control.Monad.Eff.Worker (Message, WorkerModule)
 import Control.Monad.Eff.Worker.Slave (onMessage, sendMessage)
 import Control.Monad.Rec.Class (forever)
 import Data.String (toUpper)
+
+foreign import echoWorker :: WorkerModule
 
 echoEff :: forall e.  Eff e Unit
 echoEff = onMessage (\m -> processMessage m >>= sendMessage)

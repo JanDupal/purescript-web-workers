@@ -2,10 +2,13 @@ var webworkify = require('webworkify');
 
 /**
 * Starts a WebWorker from module "Worker"
+*
+* @param workerModule module that contains "default" function
 */
-exports.startWorker = function() {
-  // TODO remove hard-coded module name
-  return webworkify(require("Echo"));
+exports.startWorker = function(workerModule) {
+  return function () {
+    return webworkify(workerModule);
+  }
 };
 
 /**

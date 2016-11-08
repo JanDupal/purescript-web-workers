@@ -10,19 +10,20 @@ import Control.Monad.Eff.Exception (EXCEPTION)
 import Control.Monad.Eff.Worker (Message)
 import Control.Monad.Eff.Worker.Master (sendMessage, onMessage, startWorker)
 import Control.Monad.Rec.Class (forever)
+import Echo (echoWorker)
 
 
 -- | SYNCHRONOUS variant of Worker API usage
 echoEff :: forall  e. Message -> Eff (err :: EXCEPTION, console :: CONSOLE | e) Unit
 echoEff input = do
-  w <- startWorker
+  w <- startWorker echoWorker
   onMessage w (\m -> log $ "[PureScript - master] Worker returned: " <> m)
   sendMessage w input
 
 -- | ASYNCHRONOUS variant of Worker API usage
 echoAff :: forall e. Message -> Aff (avar :: AVAR, console :: CONSOLE | e) Unit
 echoAff input = do
-  w <- liftEff $ startWorker
+  w <- liftEff $ startWorker echoWorker
   var <- makeVar
   liftEff $ onMessage w (\m -> void $ launchAff (putVar var m))
   liftEff $ sendMessage w input
