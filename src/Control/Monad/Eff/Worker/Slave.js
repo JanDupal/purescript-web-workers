@@ -20,7 +20,7 @@ exports._onMessage = function(unsafePerformEff) {
 *
 * @param message
 */
-exports._sendMessage = function(message) {
+exports.sendMessage = function(message) {
   return function () {
     console.log("[JavaScript - worker] Sending message:", message);
     postMessage(message);

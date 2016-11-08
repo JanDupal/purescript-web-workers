@@ -7,40 +7,25 @@ import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Exception (EXCEPTION)
-import Control.Monad.Eff.Unsafe (unsafePerformEff)
+import Control.Monad.Eff.Worker (Message)
+import Control.Monad.Eff.Worker.Master (sendMessage, onMessage, startWorker)
 import Control.Monad.Rec.Class (forever)
 
-type Message = String
-
-foreign import data Worker :: *
-
-foreign import _startWorker :: forall e. Eff e Worker
-
-foreign import _sendMessage :: forall e. Worker -> Message -> Eff e Unit
-
-type MessageCallback e = Message -> Eff e Unit
-
--- TODO remove f param
-foreign import _onMessage :: forall e f. (Eff e Unit -> Unit) -> Worker -> MessageCallback e -> Eff f Unit
-
--- TODO remove f param
-onMessage :: forall e f. Worker -> MessageCallback e -> Eff f Unit
-onMessage = _onMessage unsafePerformEff
 
 -- | SYNCHRONOUS variant of Worker API usage
 echoEff :: forall  e. Message -> Eff (err :: EXCEPTION, console :: CONSOLE | e) Unit
 echoEff input = do
-  w <- _startWorker
+  w <- startWorker
   onMessage w (\m -> log $ "[PureScript - master] Worker returned: " <> m)
-  _sendMessage w input
+  sendMessage w input
 
 -- | ASYNCHRONOUS variant of Worker API usage
 echoAff :: forall e. Message -> Aff (avar :: AVAR, console :: CONSOLE | e) Unit
 echoAff input = do
-  w <- liftEff $ _startWorker
+  w <- liftEff $ startWorker
   var <- makeVar
   liftEff $ onMessage w (\m -> void $ launchAff (putVar var m))
-  liftEff $ _sendMessage w input
+  liftEff $ sendMessage w input
   forever $ do
     workerResult <- takeVar var
     liftEff $ log $ "[PureScript - master] Worker returned: " <> workerResult

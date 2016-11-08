@@ -3,8 +3,9 @@ var webworkify = require('webworkify');
 /**
 * Starts a WebWorker from module "Worker"
 */
-exports._startWorker = function() {
-  return webworkify(require("Worker"));
+exports.startWorker = function() {
+  // TODO remove hard-coded module name
+  return webworkify(require("Echo"));
 };
 
 /**
@@ -13,7 +14,7 @@ exports._startWorker = function() {
 * @param worker
 * @param message
 */
-exports._sendMessage = function(worker) {
+exports.sendMessage = function(worker) {
   return function (message) {
     return function () {
       console.log("[JavaScript - master] Sending message:", message);
@@ -26,7 +27,7 @@ exports._sendMessage = function(worker) {
 * Sets up a parent thread to listen for messages from worker
 *
 * @param unsafePerformEff function to execute monad computation returned by processMessage
-* @param worker 
+* @param worker
 * @param cb function that takes message and returns monadic computation of response
 */
 exports._onMessage = function (unsafePerformEff) {

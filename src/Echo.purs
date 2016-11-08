@@ -1,4 +1,4 @@
-module Worker where
+module Echo where
 
 import Prelude
 import Control.Monad.Aff (Aff, launchAff)
@@ -7,24 +7,13 @@ import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Exception (EXCEPTION)
-import Control.Monad.Eff.Unsafe (unsafePerformEff)
+import Control.Monad.Eff.Worker (Message)
+import Control.Monad.Eff.Worker.Slave (onMessage, sendMessage)
 import Control.Monad.Rec.Class (forever)
 import Data.String (toUpper)
 
-type Message = String
-type MessageCallback e = Message -> Eff e Unit
-
--- | Creates a simple Web Worker that receives incomming String messages,
--- | processed them by the supplied function and sends back result.
-foreign import _onMessage :: forall e f. (Eff e Unit -> Unit) -> MessageCallback e -> Eff f Unit
-
-foreign import _sendMessage :: forall e. Message -> Eff e Unit
-
-onMessage :: forall e f. MessageCallback e -> Eff f Unit
-onMessage = _onMessage unsafePerformEff
-
 echoEff :: forall e.  Eff e Unit
-echoEff = onMessage (\m -> processMessage m >>= _sendMessage)
+echoEff = onMessage (\m -> processMessage m >>= sendMessage)
 
 echoAff :: forall e. Aff (avar :: AVAR, console :: CONSOLE | e) Unit
 echoAff = do
@@ -32,7 +21,7 @@ echoAff = do
   liftEff $ onMessage (\m -> void $ launchAff (putVar var m))
   forever $ do
     m <- takeVar var
-    liftEff $ processMessage m >>= _sendMessage
+    liftEff $ processMessage m >>= sendMessage
 
 processMessage :: forall e. Message -> Eff (console :: CONSOLE | e) Message
 processMessage input = do
