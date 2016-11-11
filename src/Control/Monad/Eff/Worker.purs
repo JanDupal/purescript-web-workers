@@ -3,6 +3,8 @@ module Control.Monad.Eff.Worker where
 import Prelude (Unit)
 import Control.Monad.Eff (Eff)
 
+foreign import data WORKER :: !
+
 foreign import data Worker :: *
 foreign import data WorkerModule :: *
 

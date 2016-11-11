@@ -7,17 +7,17 @@ import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Exception (EXCEPTION)
-import Control.Monad.Eff.Worker (Message, WorkerModule)
+import Control.Monad.Eff.Worker (WORKER, Message, WorkerModule)
 import Control.Monad.Eff.Worker.Slave (onMessage, sendMessage)
 import Control.Monad.Rec.Class (forever)
 import Data.String (toUpper)
 
 foreign import echoWorker :: WorkerModule
 
-echoEff :: forall e.  Eff e Unit
+echoEff :: forall e.  Eff (worker :: WORKER | e) Unit
 echoEff = onMessage (\m -> processMessage m >>= sendMessage)
 
-echoAff :: forall e. Aff (avar :: AVAR, console :: CONSOLE | e) Unit
+echoAff :: forall e. Aff (avar :: AVAR, console :: CONSOLE, worker :: WORKER | e) Unit
 echoAff = do
   var <- makeVar
   liftEff $ onMessage (\m -> void $ launchAff (putVar var m))
@@ -33,6 +33,6 @@ processMessage input = do
   pure response
 
 -- | Name "default" is required for webworkify to work
-default :: forall e. Eff (avar :: AVAR, console :: CONSOLE, err :: EXCEPTION | e) Unit
+default :: forall e. Eff (avar :: AVAR, console :: CONSOLE, err :: EXCEPTION, worker :: WORKER | e) Unit
 -- default = echoEff
 default = void $ launchAff echoAff

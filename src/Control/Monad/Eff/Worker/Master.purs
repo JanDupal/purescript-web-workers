@@ -9,13 +9,11 @@ import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
 import Prelude (Unit)
 
-foreign import startWorker :: forall e. WorkerModule -> Eff e Worker
+foreign import startWorker :: forall e. WorkerModule -> Eff (worker :: WORKER | e) Worker
 
-foreign import sendMessage :: forall e. Worker -> Message -> Eff e Unit
+foreign import sendMessage :: forall e. Worker -> Message -> Eff (worker :: WORKER | e) Unit
 
--- TODO remove f param
-foreign import _onMessage :: forall e f. (Eff e Unit -> Unit) -> Worker -> MessageCallback e -> Eff f Unit
+foreign import _onMessage :: forall e f. (Eff e Unit -> Unit) -> Worker -> MessageCallback e -> Eff (worker :: WORKER | f) Unit
 
--- TODO remove f param
-onMessage :: forall e f. Worker -> MessageCallback e -> Eff f Unit
+onMessage :: forall e f. Worker -> MessageCallback e -> Eff (worker :: WORKER | f) Unit
 onMessage = _onMessage unsafePerformEff
