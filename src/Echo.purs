@@ -7,29 +7,31 @@ import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Exception (EXCEPTION)
-import Control.Monad.Eff.Worker (WORKER, Message, WorkerModule)
+import Control.Monad.Eff.Worker (WORKER, WorkerModule)
 import Control.Monad.Eff.Worker.Slave (onMessage, sendMessage)
 import Control.Monad.Rec.Class (forever)
-import Data.String (toUpper)
 
-foreign import echoWorker :: WorkerModule
+type Request = Int
+type Response = String
+
+foreign import echoWorker :: WorkerModule Request Response
 
 echoEff :: forall e.  Eff (worker :: WORKER | e) Unit
-echoEff = onMessage (\m -> processMessage m >>= sendMessage)
+echoEff = onMessage echoWorker (\m -> processMessage m >>= sendMessage echoWorker)
 
 echoAff :: forall e. Aff (avar :: AVAR, console :: CONSOLE, worker :: WORKER | e) Unit
 echoAff = do
   var <- makeVar
-  liftEff $ onMessage (\m -> void $ launchAff (putVar var m))
+  liftEff $ onMessage echoWorker (\m -> void $ launchAff (putVar var m))
   forever $ do
     m <- takeVar var
-    liftEff $ processMessage m >>= sendMessage
+    liftEff $ processMessage m >>= sendMessage echoWorker
 
-processMessage :: forall e. Message -> Eff (console :: CONSOLE | e) Message
+processMessage :: forall a e. Show a => a -> Eff (console :: CONSOLE | e) String
 processMessage input = do
-  log $ "[PureScript - worker] Message received: " <> input
-  let response = toUpper input
-  log $ "[PureScript - worker] Sending message: " <> response
+  log $ "[PureScript - worker] Message received: " <> show input
+  let response = "'" <> show input <> "'"
+  log $ "[PureScript - worker] Sending message: " <> show response
   pure response
 
 -- | Name "default" is required for webworkify to work

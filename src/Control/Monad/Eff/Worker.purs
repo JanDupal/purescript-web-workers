@@ -5,8 +5,8 @@ import Control.Monad.Eff (Eff)
 
 foreign import data WORKER :: !
 
-foreign import data Worker :: *
-foreign import data WorkerModule :: *
+-- TODO accept only Transferable types
+foreign import data Worker :: * -> * -> *
+foreign import data WorkerModule :: * -> * -> *
 
-type Message = String
-type MessageCallback e = Message -> Eff e Unit
+type MessageCallback a e = a -> Eff e Unit
