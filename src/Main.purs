@@ -2,8 +2,8 @@ module Main where
 
 import Prelude
 import Control.Monad.Aff (forkAff, launchAff, Aff)
-import Control.Monad.Aff.AVar (AVAR)
-import Control.Monad.Aff.Worker.Master (send, expect, makeChan)
+import Control.Monad.Aff.AVar (putVar, takeVar, AVAR)
+import Control.Monad.Aff.Worker.Master (makeChan)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE, log)
@@ -12,7 +12,7 @@ import Control.Monad.Eff.Worker (Worker, WORKER)
 import Control.Monad.Eff.Worker.Master (sendMessage, onMessage, startWorker)
 import Control.Monad.Rec.Class (forever)
 import Data.Tuple (Tuple(Tuple))
-import Echo (Request, echoWorker)
+import Echo (Request, workerModule)
 
 
 -- | SYNCHRONOUS variant of Worker API usage
@@ -24,17 +24,17 @@ echoEff w input = do
 -- | ASYNCHRONOUS variant of Worker API usage
 echoAff :: forall a e. (Show a) => Worker Request a -> Request -> Aff (avar :: AVAR, console :: CONSOLE, worker :: WORKER | e) Unit
 echoAff w input = do
-  Tuple rcv snd <- makeChan w
+  Tuple req res <- makeChan w
   forkAff $ forever do
-    workerResult <- expect rcv
-    liftEff $ log $ "[PureScript - master Aff] Worker returned: " <> show workerResult
-  send snd input
+    response <- takeVar res
+    liftEff $ log $ "[PureScript - master Aff] Worker returned: " <> show response
+  putVar req input
 
 main :: forall e. Eff (avar :: AVAR, console :: CONSOLE, err :: EXCEPTION, worker :: WORKER | e) Unit
 main = do
   log "[PureScript - master] Init"
-  w1 <- startWorker echoWorker
-  echoEff w1 1
-  w2 <- startWorker echoWorker
-  launchAff $ echoAff w2 2
+  w1 <- startWorker workerModule
+  echoEff w1 "foo"
+  w2 <- startWorker workerModule
+  launchAff $ echoAff w2 "bar"
   log "[PureScript - master] Finish"

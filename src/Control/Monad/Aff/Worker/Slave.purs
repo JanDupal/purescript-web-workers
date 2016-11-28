@@ -1,8 +1,5 @@
 module Control.Monad.Aff.Worker.Slave
-  ( expect
-  , send
-  , makeChan
-  ) where
+  (makeChan) where
 
 import Prelude
 import Control.Monad.Aff (forkAff, launchAff, Aff)
@@ -13,20 +10,12 @@ import Control.Monad.Eff.Worker.Slave (sendMessage, onMessage)
 import Control.Monad.Rec.Class (forever)
 import Data.Tuple (Tuple(Tuple))
 
-type Chan a = AVar a
-
-expect :: forall a e. Chan a -> Aff (avar :: AVAR | e) a
-expect = takeVar
-
-send :: forall a e. Chan a -> a -> Aff (avar :: AVAR | e) Unit
-send = putVar
-
-makeChan :: forall a b e. WorkerModule a b -> Aff (avar :: AVAR, worker :: WORKER | e) (Tuple (Chan a) (Chan b))
+makeChan :: forall req res e. WorkerModule req res -> Aff (avar :: AVAR, worker :: WORKER | e) (Tuple (AVar req) (AVar res))
 makeChan worker = do
-  rcv <- makeVar
-  liftEff $ onMessage worker (\m -> void $ launchAff (putVar rcv m))
-  snd <- makeVar
+  req <- makeVar
+  liftEff $ onMessage worker (\m -> void $ launchAff (putVar req m))
+  res <- makeVar
   forkAff $ forever do
-    msg <- takeVar snd
+    msg <- takeVar res
     liftEff $ sendMessage worker msg
-  pure $ Tuple rcv snd
+  pure $ Tuple req res
